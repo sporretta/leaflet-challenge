@@ -28,8 +28,30 @@ function createMap(earthquakes){
         layers: [worldMap, earthquakes]
     });
 
-    // Create a layer control, and pass it baseMaps and overlayMaps. Add the layer control to the map.
-    L.control.layers(baseMaps, overlayMaps, {
+    // Create a legend to display information about our map.
+var legend = L.control({position : "bottomright"});
+  
+// When the layer control is added, insert a div with the class of "legend".
+legend.onAdd = function() {
+  let div = L.DomUtil.create("div", "legend");
+  let depth=[-10,10,30,50,70,90];
+  let info = "<h3> style='text-align: center'>Depth</h3>";
+
+  div.innerhtml += info
+
+  for(let i= 0; i<depth.length; i++) {
+  div.innerHTML +=
+  '<i style="background:"white"' + pickColor(depth[i] + 1) + '"></i> ' + depth[i] + (depth[i + 1] ? '&ndash;' + depth[i + 1] + '<br>' : '+');
+  }
+  return div;
+};
+
+ 
+// Add the info legend to the map.
+legend.addTo(map)
+
+// Create a layer control, and pass it baseMaps and overlayMaps. Add the layer control to the map.
+L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
     }).addTo(map);
     
@@ -39,55 +61,36 @@ function createMap(earthquakes){
 //Create a function for the markers
 function createMarkers(feature, latlng) {
 
-    // Pull the "locations" property from response.data.
+    // Pull the "locations" property from data
     let locations = {
-        size: feature.properties.mag*5,
-        fillColor: pickColor(feature.properties.mag),
-        color: pickColor(feature.properties.mag),
+        radius: feature.properties.mag*2,
+        fillColor: pickColor(feature.geometry.coordinates[2]),
+        color: pickColor(feature.geometry.coordinates[2]),
         weight:.7,
         opacity: .6,
         fillOpacity: .4
 
     }
-return L.circleMarker(latlng, locations)
+    return L.circleMarker(latlng, locations)
 };
 
 
     //Create a function to choose the color of the marker
-function pickColor(mag) {
-    if (1.0<= mag && mag <= 2.5)
-        return "blue"
-    else if (2.5 <= mag && mag < 4.0)
+function pickColor(depth) {
+    if (depth <= 10)
         return "green"
-    else if (4.0 <= mag && mag < 5.5)
+    else if (depth <= 30.0)
+        return "greenyellow"
+    else if (depth <= 50)
         return "yellow"
-    else if (5.5 <= mag && mag < 8.0)
+    else if (depth <= 70)
         return "orange" 
-    else if (8.0 <= mag && mag < 20.0)
-        return "purple"
+    else if (depth <= 90.0)
+        return "orangered"
     else 
         return "red"
 };
 
-
-    // Initialize an array to hold earthquake markers.
-    // let quakeMarkers = [];
-
-    // // Loop through the locations array.
-    // for (let index = 0; index < locations.length; index++) {
-    //     let location = locations[index];
-
-    //     // For each location, create a marker, and bind a popup with the location's name.
-    //     let quakeMarker = L.marker([location.geometry.coordinates[0], location.geometry.coordinates[1]])
-    //         .bindPopup("<h3>" + location.properties.title + "<h3><h3>Magnitude: " + location.properties.mag + "</h3>");
-
-    //     // Add the marker to the quakeMarkers array.
-    //     quakeMarkers.push(quakeMarker);
-    // }
-
-//     // Create a layer group that's made from the quake markers array, and pass it to the createMap function.
-//     createMap(L.layerGroup(quakeMarkers));
-// };
 
 
 // Perform an API call to the Earthquake API to get the location information. Call createMarkers when it completes.
@@ -106,6 +109,8 @@ function createFeatures(earthquake) {
     });
 
     createMap(earthquakes);
+
+    
 
     //Add subfunction for binding the popup
     function feature(feature, layer) {
