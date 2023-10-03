@@ -35,18 +35,17 @@ var legend = L.control({position : "bottomright"});
 legend.onAdd = function() {
   let div = L.DomUtil.create("div", "legend");
   let depth=[-10,10,30,50,70,90];
-  let info = "<h3> style='text-align: center'>Depth</h3>";
-
+  let info = "<h3> style='text-align: center'>depth</h3>";
   div.innerhtml += info
 
   for(let i= 0; i<depth.length; i++) {
-  div.innerHTML +=
-  '<i style="background:"white"' + pickColor(depth[i] + 1) + '"></i> ' + depth[i] + (depth[i + 1] ? '&ndash;' + depth[i + 1] + '<br>' : '+');
+    div.innerHTML +=
+    '<i style="background:"white"'+ pickColor(depth[i] + 1) + '"></i> ' + depth[i] + (depth[i + 1] ? '&ndash;' + depth[i + 1] + '<br>' : '+');
   }
   return div;
 };
 
- 
+
 // Add the info legend to the map.
 legend.addTo(map)
 
